@@ -28,6 +28,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import uark.edu.detection.GpsRec;
 
 
 
@@ -56,7 +57,7 @@ public class MainButtonActivity extends Activity implements android.location.Loc
 
     Button button_share;
 
-    // Handler gets created on the UI-thread
+
     private Handler mHandler = new Handler();
 
     public final static String EXTRA_MESSAGE = "com.votors.runningx.MESSAGE";
@@ -184,7 +185,7 @@ public class MainButtonActivity extends Activity implements android.location.Loc
 
             }
         });
-
+/*
         final Intent intent_chart = new Intent(this, ChartActivity.class);
         button_chart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -195,6 +196,7 @@ public class MainButtonActivity extends Activity implements android.location.Loc
                 startActivity(intent_chart);
             }
         });
+        */
         /*button_share.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -245,9 +247,9 @@ public class MainButtonActivity extends Activity implements android.location.Loc
         // adding nav drawer items to array
         // Home
         navDrawerItems.add(new NavDrawerItem(navMenuTitles[0], navMenuIcons.getResourceId(0, -1)));
-        navDrawerItems.add(new NavDrawerItem(navMenuTitles[1], navMenuIcons.getResourceId(1, -1), true, ""+Record.getRecords(this).size()));
-        navDrawerItems.add(new NavDrawerItem(navMenuTitles[2], navMenuIcons.getResourceId(2, -1)));
-        navDrawerItems.add(new NavDrawerItem(navMenuTitles[3], navMenuIcons.getResourceId(3, -1)));
+        navDrawerItems.add(new NavDrawerItem(navMenuTitles[1], navMenuIcons.getResourceId(0, -1), true, ""+Record.getRecords(this).size()));
+        navDrawerItems.add(new NavDrawerItem(navMenuTitles[2], navMenuIcons.getResourceId(0, -1)));
+        navDrawerItems.add(new NavDrawerItem(navMenuTitles[3], navMenuIcons.getResourceId(0, -1)));
 
         // Recycle the typed array
         navMenuIcons.recycle();
@@ -341,7 +343,7 @@ public class MainButtonActivity extends Activity implements android.location.Loc
         //getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
-
+/*
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // toggle nav drawer on selecting action bar app icon/title
@@ -356,7 +358,7 @@ public class MainButtonActivity extends Activity implements android.location.Loc
                 return super.onOptionsItemSelected(item);
         }
     }
-
+*/
     /* *
      * Called when invalidateOptionsMenu() is triggered
      */
@@ -407,16 +409,16 @@ public class MainButtonActivity extends Activity implements android.location.Loc
                 fragment = null;
                 break;
             case 1:
-                fragment = new TimelineFragment();
-                disableEnableControls(false,button_all);
+              //fragment = new TimelineFragment();
+               // disableEnableControls(false,button_all);
                 break;
             case 2:
                 fragment = new ConfFragment();
                 disableEnableControls(false,button_all);
                 break;
             case 3:
-                fragment = new AboutUsFragment();
-                disableEnableControls(false,button_all);
+                //fragment = new AboutUsFragment();
+               // disableEnableControls(false,button_all);
                 break;
 
             default:

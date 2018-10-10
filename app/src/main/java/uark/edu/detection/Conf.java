@@ -202,7 +202,7 @@ public class Conf {
             return String.format("%.02f", sp);
         }
     }
-
+/*
     public static Intent getMapIntent() {
 
         if (MAP_TYPE.equals(context.getResources().getString(R.string.gmap))) {
@@ -214,7 +214,7 @@ public class Conf {
         }
         return new Intent(context, MapActivity_gd.class);
     }
-
+*/
     public static String getRootDir() {
         File dir = Environment.getExternalStorageDirectory();
         String rootDir = null;

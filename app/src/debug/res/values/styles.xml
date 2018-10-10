@@ -1,0 +1,16 @@
+<resources>
+
+    <!-- Application theme. -->
+    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+        <item name="android:logo">@android:color/transparent</item>
+    </style>
+
+    <style name="AppThemeFull" parent="android:Theme.Holo.Light.NoActionBar.Fullscreen">
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+    </style>
+
+
+</resources>
