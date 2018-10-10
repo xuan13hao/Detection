@@ -141,7 +141,7 @@ public class MainButtonActivity extends Activity implements android.location.Loc
                 Log.i(TAG, "start/pause/resume onclick..");
             }
         });
-
+/*
         button_map.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -185,7 +185,7 @@ public class MainButtonActivity extends Activity implements android.location.Loc
 
             }
         });
-/*
+
         final Intent intent_chart = new Intent(this, ChartActivity.class);
         button_chart.setOnClickListener(new View.OnClickListener() {
             @Override
