@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    class="com.google.android.gms.maps.SupportMapFragment"
     android:id="@+id/map"
     style="@style/AppThemeFull"
     android:name="com.google.android.gms.maps.MapFragment"
