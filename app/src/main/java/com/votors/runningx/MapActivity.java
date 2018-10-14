@@ -1,5 +1,6 @@
  package com.votors.runningx;
 
+
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -25,12 +26,17 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 
-public class MapActivity extends Activity implements SensorEventListener{
+public class MapActivity extends Activity implements SensorEventListener {
 
     public final static String EXTRA_MESSAGE = "com.votors.runningx.MESSAGE";
     private static final String BC_INTENT = "com.votors.runningx.BroadcastReceiver.location";
-    public final static String EXTRA_GpsRec = "GpsRec";
+    public final static String EXTRA_GpsRec = "com.votors.runningx.GpsRec";
 
+    private SensorManager sensorManager;
+    private Sensor sensor;
+    private float sensor_x;
+    private float sensor_y;
+    private float sensor_z;
     // The Map Object
     private GoogleMap mMap;
 
@@ -45,20 +51,16 @@ public class MapActivity extends Activity implements SensorEventListener{
     double center_lng = 0;
 
     int movePointCnt = 0;
-    private SensorManager sensorManager;
-    //sensor reminder
-    int sensor_x;
-    int sensor_y;
-    int sensor_z;
-    private Sensor sensor;
+
     LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Conf.init(getApplicationContext());
-        getSensorManager();
+
         setContentView(R.layout.main_map);
+        getSensorManager();
         locations = (ArrayList<GpsRec>)getIntent().getSerializableExtra(EXTRA_MESSAGE);
         for (GpsRec r: locations) total_dist += r.distance;
 
@@ -68,68 +70,15 @@ public class MapActivity extends Activity implements SensorEventListener{
 
         // Get Map Object
         mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-
+        System.out.print(mMap.toString());
         final PolylineOptions polylines = new PolylineOptions();
-        if(sensor_x<3&&sensor_y<3&&sensor_z<3) {
+        if(sensor_x<20||sensor_y<20||sensor_z<20) {
             polylines.color(Color.BLUE).width(10);
+        /*line = map.addPolyline(new PolylineOptions()
+                .add(new LatLng(51.5, -0.1), new LatLng(40.7, -74.0))
+                .width(5)
+                .color(Color.RED)*/
 
-            if (null != mMap && locations != null) {
-                // Add a marker for every earthquake
-                int cnt = 0;
-                // If already run a long way, distance between mark should be larger.
-                float mark_distance = Conf.getMarkDistance(total_dist);
-                for (GpsRec rec : locations) {
-                    Log.i(TAG, rec.toString());
-                    cnt++;
-                    if (cnt == 1 || cnt == locations.size() || (int) Math.floor(curr_dist / mark_distance) != (int) Math.floor((curr_dist + rec.distance) / mark_distance)) {
-                        // Add a new marker
-                        MarkerOptions mk = new MarkerOptions()
-                                .position(new LatLng(rec.getLat(), rec.getLng()));
-
-                        // Set the title of the Marker's information window
-                        if (cnt == 1) {
-                            mk.title(String.valueOf(getResources().getString(R.string.start)));
-                            mk.icon(BitmapDescriptorFactory.defaultMarker(getMarkerColor(rec.speed)));
-                            mMap.addMarker(mk).showInfoWindow();
-                        } else if (cnt == locations.size()) {
-                            mk.title(String.format("[%s] %.1f%s,%.1f%s",
-                                    getResources().getString(R.string.end),
-                                    Conf.getDistance(curr_dist + rec.distance),
-                                    Conf.getDistanceUnit(),
-                                    Conf.getSpeed((curr_dist + rec.distance) / (rec.date.getTime() - locations.get(0).date.getTime()) * 1000, 0),
-                                    Conf.getSpeedUnit()));
-                            mk.icon(BitmapDescriptorFactory.defaultMarker(getMarkerColor(rec.speed)));
-                            mMap.addMarker(mk).showInfoWindow();
-                        } else {
-                            mk.title(String.format("%.1f%s,%.1f%s",
-                                    Conf.getDistance((curr_dist + rec.distance)),
-                                    Conf.getDistanceUnit(),
-                                    Conf.getSpeed(rec.speed, 0),
-                                    Conf.getSpeedUnit()));
-                            mk.icon(BitmapDescriptorFactory.defaultMarker(getMarkerColor(rec.speed)));
-                            mMap.addMarker(mk).showInfoWindow();
-                        }
-
-                        // Set the color for the Marker
-                        builder.include(mk.getPosition());
-                    }
-                    curr_dist += rec.distance;
-                    center_lat += rec.getLat();
-                    center_lng += rec.getLng();
-
-                    polylines.add(new LatLng(rec.getLat(), rec.getLng()));
-                }
-            }
-
-            // Center the map, draw the path
-            // Should compute map center from the actual data
-            mMap.addPolyline(polylines);
-
-
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(center_lat / locations.size(), center_lng / locations.size())));
-            mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
-        }else {
-            polylines.color(Color.RED).width(10);
             if (null != mMap && locations != null) {
                 // Add a marker for every earthquake
                 int cnt = 0;
@@ -184,28 +133,105 @@ public class MapActivity extends Activity implements SensorEventListener{
             mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(center_lat / locations.size(), center_lng / locations.size())));
             mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
 
-        }
-
-
-        // see http://stackoverflow.com/questions/16367556/cameraupdatefactory-newlatlngbounds-is-not-workinf-all-the-time
-        mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-            @Override
-            public void onMapLoaded() {
-                if (locations.size()>0) {
-                    LatLngBounds bounds = adjustBoundsForMaxZoomLevel(builder.build());
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 150));
+            // see http://stackoverflow.com/questions/16367556/cameraupdatefactory-newlatlngbounds-is-not-workinf-all-the-time
+            mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                @Override
+                public void onMapLoaded() {
+                    if (locations.size() > 0) {
+                        LatLngBounds bounds = adjustBoundsForMaxZoomLevel(builder.build());
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 150));
+                    }
                 }
-            }
-        });
+            });
 
-        mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
-            @Override
-            public void onCameraChange(CameraPosition arg0) {
+            mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+                @Override
+                public void onCameraChange(CameraPosition arg0) {
 //                LatLngBounds bounds = adjustBoundsForMaxZoomLevel(builder.build());
 //                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 10));
-            }
-        });
+                }
+            });
+        }else
+            {
+                polylines.color(Color.RED).width(10);
+        /*line = map.addPolyline(new PolylineOptions()
+                .add(new LatLng(51.5, -0.1), new LatLng(40.7, -74.0))
+                .width(5)
+                .color(Color.RED)*/
 
+                if (null != mMap && locations != null) {
+                    // Add a marker for every earthquake
+                    int cnt = 0;
+                    // If already run a long way, distance between mark should be larger.
+                    float mark_distance = Conf.getMarkDistance(total_dist);
+                    for (GpsRec rec : locations) {
+                        Log.i(TAG, rec.toString());
+                        cnt++;
+                        if (cnt == 1 || cnt == locations.size() || (int) Math.floor(curr_dist / mark_distance) != (int) Math.floor((curr_dist + rec.distance) / mark_distance)) {
+                            // Add a new marker
+                            MarkerOptions mk = new MarkerOptions()
+                                    .position(new LatLng(rec.getLat(), rec.getLng()));
+
+                            // Set the title of the Marker's information window
+                            if (cnt == 1) {
+                                mk.title(String.valueOf(getResources().getString(R.string.start)));
+                                mk.icon(BitmapDescriptorFactory.defaultMarker(getMarkerColor(rec.speed)));
+                                mMap.addMarker(mk).showInfoWindow();
+                            } else if (cnt == locations.size()) {
+                                mk.title(String.format("[%s] %.1f%s,%.1f%s",
+                                        getResources().getString(R.string.end),
+                                        Conf.getDistance(curr_dist + rec.distance),
+                                        Conf.getDistanceUnit(),
+                                        Conf.getSpeed((curr_dist + rec.distance) / (rec.date.getTime() - locations.get(0).date.getTime()) * 1000, 0),
+                                        Conf.getSpeedUnit()));
+                                mk.icon(BitmapDescriptorFactory.defaultMarker(getMarkerColor(rec.speed)));
+                                mMap.addMarker(mk).showInfoWindow();
+                            } else {
+                                mk.title(String.format("%.1f%s,%.1f%s",
+                                        Conf.getDistance((curr_dist + rec.distance)),
+                                        Conf.getDistanceUnit(),
+                                        Conf.getSpeed(rec.speed, 0),
+                                        Conf.getSpeedUnit()));
+                                mk.icon(BitmapDescriptorFactory.defaultMarker(getMarkerColor(rec.speed)));
+                                mMap.addMarker(mk).showInfoWindow();
+                            }
+
+                            // Set the color for the Marker
+                            builder.include(mk.getPosition());
+                        }
+                        curr_dist += rec.distance;
+                        center_lat += rec.getLat();
+                        center_lng += rec.getLng();
+
+                        polylines.add(new LatLng(rec.getLat(), rec.getLng()));
+                    }
+                }
+
+                // Center the map, draw the path
+                // Should compute map center from the actual data
+                mMap.addPolyline(polylines);
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(center_lat / locations.size(), center_lng / locations.size())));
+                mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
+
+                // see http://stackoverflow.com/questions/16367556/cameraupdatefactory-newlatlngbounds-is-not-workinf-all-the-time
+                mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                    @Override
+                    public void onMapLoaded() {
+                        if (locations.size() > 0) {
+                            LatLngBounds bounds = adjustBoundsForMaxZoomLevel(builder.build());
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 150));
+                        }
+                    }
+                });
+
+                mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+                    @Override
+                    public void onCameraChange(CameraPosition arg0) {
+//                LatLngBounds bounds = adjustBoundsForMaxZoomLevel(builder.build());
+//                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 10));
+                    }
+                });
+            }
     }
 
     @Override
@@ -260,15 +286,16 @@ public class MapActivity extends Activity implements SensorEventListener{
         return (36 * hue);
     }
 
+
+    /*
+    ** sensor code
+
+     */
     @Override
     public void onSensorChanged(SensorEvent event) {
-        float x = event.values[0];
-        float y = event.values[0];
-        float z = event.values[0];
-        if(x>30 || y>30 || z>30){
-            //sensor > 30，显示为路面坑洼
-           sensor_x=3;sensor_y=3;sensor_z=3;
-        }
+        sensor_x = event.values[0];
+        sensor_y = event.values[0];
+        sensor_z = event.values[0];
     }
 
     @Override
@@ -286,7 +313,27 @@ public class MapActivity extends Activity implements SensorEventListener{
          */
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
     }
-
+    protected void onResume() {
+        super.onResume();
+        if(sensorManager != null){
+            //一般在Resume方法中注册
+            /**
+             * 第三个参数决定传感器信息更新速度
+             * SensorManager.SENSOR_DELAY_NORMAL:一般
+             * SENSOR_DELAY_FASTEST:最快
+             * SENSOR_DELAY_GAME:比较快,适合游戏
+             * SENSOR_DELAY_UI:慢
+             */
+            sensorManager.registerListener(this,sensor,SensorManager.SENSOR_DELAY_NORMAL);
+        }
+    }
+    protected void onPause() {
+        super.onPause();
+        if(sensorManager != null){
+            //解除注册
+            sensorManager.unregisterListener(this,sensor);
+        }
+    }
 
 
     public class LocationReceiver extends BroadcastReceiver {
