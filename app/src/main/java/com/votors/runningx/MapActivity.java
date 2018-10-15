@@ -26,7 +26,9 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 
-public class MapActivity extends Activity implements SensorEventListener {
+import static com.votors.runningx.MapActivity.EXTRA_GpsRec;
+
+ public class MapActivity extends Activity implements SensorEventListener {
 
     public final static String EXTRA_MESSAGE = "com.votors.runningx.MESSAGE";
     private static final String BC_INTENT = "com.votors.runningx.BroadcastReceiver.location";
@@ -40,6 +42,7 @@ public class MapActivity extends Activity implements SensorEventListener {
     // The Map Object
     private GoogleMap mMap;
 
+    public static TrafficSensor ts=new TrafficSensor();
     public static final String TAG = "MapActivity";
 
     private final LocationReceiver mReceiver = new LocationReceiver();
@@ -60,24 +63,34 @@ public class MapActivity extends Activity implements SensorEventListener {
         Conf.init(getApplicationContext());
 
         setContentView(R.layout.main_map);
-        getSensorManager();
+
         locations = (ArrayList<GpsRec>)getIntent().getSerializableExtra(EXTRA_MESSAGE);
         for (GpsRec r: locations) total_dist += r.distance;
 
         registerReceiver(mReceiver, intentFilter);
-
+        //Sensor Test code
         Log.i(TAG, "location numbler: " + locations.size());
-
+        Log.i(TAG, "sensor_x: " + sensor_x);
+        Log.i(TAG, "sensor_x: " + sensor_y);
+        Log.i(TAG, "sensor_x: " + sensor_z);
+        //Log.i(TAG, "sensor_x: " + sensor_x);
         // Get Map Object
         mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-        System.out.print(mMap.toString());
+        getSensorManager();
+        //System.out.print(mMap.toString());
         final PolylineOptions polylines = new PolylineOptions();
-        if(sensor_x<20||sensor_y<20||sensor_z<20) {
+        System.out.print(sensor_x);
+        //Sensor Judgement
+        if(ts.getX()<15||ts.getY()<15||ts.getZ()<15)
+        {
             polylines.color(Color.BLUE).width(10);
-        /*line = map.addPolyline(new PolylineOptions()
-                .add(new LatLng(51.5, -0.1), new LatLng(40.7, -74.0))
-                .width(5)
-                .color(Color.RED)*/
+
+        }else
+            {
+
+                polylines.color(Color.RED).width(10);
+            }
+
 
             if (null != mMap && locations != null) {
                 // Add a marker for every earthquake
@@ -151,13 +164,12 @@ public class MapActivity extends Activity implements SensorEventListener {
 //                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 10));
                 }
             });
-        }else
+        }
+        /*
+        else
             {
                 polylines.color(Color.RED).width(10);
-        /*line = map.addPolyline(new PolylineOptions()
-                .add(new LatLng(51.5, -0.1), new LatLng(40.7, -74.0))
-                .width(5)
-                .color(Color.RED)*/
+
 
                 if (null != mMap && locations != null) {
                     // Add a marker for every earthquake
@@ -231,8 +243,8 @@ public class MapActivity extends Activity implements SensorEventListener {
 //                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 10));
                     }
                 });
-            }
-    }
+            }*/
+
 
     @Override
     public void onPostCreate (Bundle bundle) {
@@ -289,13 +301,20 @@ public class MapActivity extends Activity implements SensorEventListener {
 
     /*
     ** sensor code
-
      */
     @Override
     public void onSensorChanged(SensorEvent event) {
         sensor_x = event.values[0];
         sensor_y = event.values[0];
         sensor_z = event.values[0];
+        Log.d("MySensorApp", "Raw accelerometer values : " + sensor_x + " : " + sensor_y + " : " + sensor_z);
+        if(sensor_x>15|sensor_y>15||sensor_z>15) {
+            TrafficSensor ts = new TrafficSensor(sensor_x, sensor_y, sensor_z);
+        }
+        else
+            {
+                TrafficSensor ts = new TrafficSensor(sensor_x, sensor_y, sensor_z);
+            }
     }
 
     @Override
