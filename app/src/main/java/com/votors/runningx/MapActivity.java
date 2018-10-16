@@ -81,15 +81,7 @@ import static com.votors.runningx.MapActivity.EXTRA_GpsRec;
         final PolylineOptions polylines = new PolylineOptions();
         System.out.print(sensor_x);
         //Sensor Judgement
-        if(ts.getX()<15||ts.getY()<15||ts.getZ()<15)
-        {
-            polylines.color(Color.BLUE).width(10);
 
-        }else
-            {
-
-                polylines.color(Color.RED).width(10);
-            }
 
 
             if (null != mMap && locations != null) {
@@ -139,12 +131,24 @@ import static com.votors.runningx.MapActivity.EXTRA_GpsRec;
                     polylines.add(new LatLng(rec.getLat(), rec.getLng()));
                 }
             }
+        // Center the map, draw the path
+        // Should compute map center from the actual data
 
-            // Center the map, draw the path
-            // Should compute map center from the actual data
+        if(ts.getX()<15||ts.getY()<15||ts.getZ()<15)
+        {
+            polylines.color(Color.BLUE).width(10);
             mMap.addPolyline(polylines);
             mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(center_lat / locations.size(), center_lng / locations.size())));
             mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
+
+        }else
+        {
+            polylines.color(Color.RED).width(10);
+            mMap.addPolyline(polylines);
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(center_lat / locations.size(), center_lng / locations.size())));
+            mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
+        }
+
 
             // see http://stackoverflow.com/questions/16367556/cameraupdatefactory-newlatlngbounds-is-not-workinf-all-the-time
             mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
@@ -365,7 +369,14 @@ import static com.votors.runningx.MapActivity.EXTRA_GpsRec;
 
             final PolylineOptions polylines = new PolylineOptions();
             GpsRec last;
-            polylines.color(Color.BLUE).width(10);
+            if(ts.getX()<15||ts.getY()<15||ts.getZ()<15)
+            {
+            polylines.color(Color.RED).width(10);
+            }
+            else
+                {
+                    polylines.color(Color.BLUE).width(10);
+                }
             if (locations.size()>0) {
                 last = locations.get(locations.size() - 1);
                 polylines.add(new LatLng(last.getLat(),last.getLng()));
@@ -404,4 +415,8 @@ import static com.votors.runningx.MapActivity.EXTRA_GpsRec;
         }
 
     }
+
+
+
+
 }
