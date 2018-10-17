@@ -28,7 +28,7 @@ import java.util.ArrayList;
 
 import static com.votors.runningx.MapActivity.EXTRA_GpsRec;
 
- public class MapActivity extends Activity implements SensorEventListener {
+ public class MapActivity extends Activity implements SensorEventListener,Runnable {
 
     public final static String EXTRA_MESSAGE = "com.votors.runningx.MESSAGE";
     private static final String BC_INTENT = "com.votors.runningx.BroadcastReceiver.location";
@@ -133,22 +133,25 @@ import static com.votors.runningx.MapActivity.EXTRA_GpsRec;
             }
         // Center the map, draw the path
         // Should compute map center from the actual data
-
+        polylines.color(Color.BLUE).width(10);
+        mMap.addPolyline(polylines);
+/*
         if(ts.getX()<15||ts.getY()<15||ts.getZ()<15)
         {
             polylines.color(Color.BLUE).width(10);
             mMap.addPolyline(polylines);
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(center_lat / locations.size(), center_lng / locations.size())));
-            mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
+           // mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(center_lat / locations.size(), center_lng / locations.size())));
+           // mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
 
         }else
         {
             polylines.color(Color.RED).width(10);
             mMap.addPolyline(polylines);
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(center_lat / locations.size(), center_lng / locations.size())));
-            mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
-        }
 
+        }
+        */
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(center_lat / locations.size(), center_lng / locations.size())));
+        mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
 
             // see http://stackoverflow.com/questions/16367556/cameraupdatefactory-newlatlngbounds-is-not-workinf-all-the-time
             mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
@@ -358,8 +361,29 @@ import static com.votors.runningx.MapActivity.EXTRA_GpsRec;
         }
     }
 
+     @Override
+     public void run() {
+         PolylineOptions polylines = new PolylineOptions();
+         if(ts.getX()<15||ts.getY()<15||ts.getZ()<15)
+         {
+             polylines.color(Color.RED).width(10);
+             mMap.addPolyline(polylines);
+             // mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(center_lat / locations.size(), center_lng / locations.size())));
+             // mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
 
-    public class LocationReceiver extends BroadcastReceiver {
+         }else
+         {
+             polylines.color(Color.BLACK).width(10);
+             mMap.addPolyline(polylines);
+
+         }
+         mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(center_lat / locations.size(), center_lng / locations.size())));
+         mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
+
+     }
+
+
+     public class LocationReceiver extends BroadcastReceiver {
         private final String TAG = "LocationReceiver";
 
         @Override
