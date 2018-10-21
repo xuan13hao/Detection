@@ -28,7 +28,7 @@ import java.util.ArrayList;
 
 import static com.votors.runningx.MapActivity.EXTRA_GpsRec;
 
- public class MapActivity extends Activity implements SensorEventListener,Runnable {
+ public class MapActivity extends Activity implements SensorEventListener {
 
     public final static String EXTRA_MESSAGE = "com.votors.runningx.MESSAGE";
     private static final String BC_INTENT = "com.votors.runningx.BroadcastReceiver.location";
@@ -80,6 +80,7 @@ import static com.votors.runningx.MapActivity.EXTRA_GpsRec;
         //System.out.print(mMap.toString());
         final PolylineOptions polylines = new PolylineOptions();
         System.out.print(sensor_x);
+       // this.run();
         //Sensor Judgement
 
 
@@ -133,9 +134,9 @@ import static com.votors.runningx.MapActivity.EXTRA_GpsRec;
             }
         // Center the map, draw the path
         // Should compute map center from the actual data
-        polylines.color(Color.BLUE).width(10);
-        mMap.addPolyline(polylines);
-/*
+       // polylines.color(Color.BLUE).width(10);
+        //mMap.addPolyline(polylines);
+
         if(ts.getX()<15||ts.getY()<15||ts.getZ()<15)
         {
             polylines.color(Color.BLUE).width(10);
@@ -145,11 +146,11 @@ import static com.votors.runningx.MapActivity.EXTRA_GpsRec;
 
         }else
         {
-            polylines.color(Color.RED).width(10);
+            polylines.color(Color.RED).width(15);
             mMap.addPolyline(polylines);
 
         }
-        */
+
         mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(center_lat / locations.size(), center_lng / locations.size())));
         mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
 
@@ -360,7 +361,7 @@ import static com.votors.runningx.MapActivity.EXTRA_GpsRec;
             sensorManager.unregisterListener(this,sensor);
         }
     }
-
+/*
      @Override
      public void run() {
          PolylineOptions polylines = new PolylineOptions();
@@ -381,7 +382,7 @@ import static com.votors.runningx.MapActivity.EXTRA_GpsRec;
          mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
 
      }
-
+*/
 
      public class LocationReceiver extends BroadcastReceiver {
         private final String TAG = "LocationReceiver";
@@ -395,7 +396,7 @@ import static com.votors.runningx.MapActivity.EXTRA_GpsRec;
             GpsRec last;
             if(ts.getX()<15||ts.getY()<15||ts.getZ()<15)
             {
-            polylines.color(Color.RED).width(10);
+            polylines.color(Color.RED).width(15);
             }
             else
                 {
